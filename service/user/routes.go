@@ -33,6 +33,17 @@ func (h *Handler) RegisterRoutes(router *gin.Engine) {
 func (h *Handler) locked(c *gin.Context) {
 	c.JSON(200, "unlocked")
 }
+
+// @Summary Login user
+// @Description Log in a user with email and password
+// @Tags User
+// @Accept json
+// @Produce json
+// @Param loginUserPayload body models.LoginUserPayload true "Login credentials"
+// @Success 200 {object} models.TokenResponse
+// @Failure 400 {object} models.ErrorResponse
+// @Failure 500 {object} models.ErrorResponse
+// @Router /api/v1/login [post]
 func (h *Handler) handleLogin(c *gin.Context) {
 	var payload models.LoginUserPayload
 	if err := utils.ParseJSON(c, &payload); err != nil {
@@ -65,6 +76,16 @@ func (h *Handler) handleLogin(c *gin.Context) {
 		gin.H{"token": token})
 }
 
+// @Summary Register a new user
+// @Description Register a new user with username, email, and password
+// @Tags User
+// @Accept json
+// @Produce json
+// @Param registerUserPayload body models.RegisterUserPayload true "Registration details"
+// @Success 201 {object} models.SuccessResponse
+// @Failure 400 {object} models.ErrorResponse
+// @Failure 500 {object} models.ErrorResponse
+// @Router /api/v1/register [post]
 func (h *Handler) handleRegister(c *gin.Context) {
 
 	var payload models.RegisterUserPayload
