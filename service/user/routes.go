@@ -16,6 +16,9 @@ type Handler struct {
 	store models.UserStore
 }
 
+// @title CadKeeperAuth API
+// @version 1.0
+// @description This is a sample API for CadKeeperAuth which includes registration, authentication, and token validation.
 func NewHandler(store models.UserStore) *Handler {
 	return &Handler{store: store}
 }
@@ -26,12 +29,9 @@ func (h *Handler) RegisterRoutes(router *gin.Engine) {
 	{
 		api.POST("/login", h.handleLogin)
 		api.POST("/register", h.handleRegister)
-		api.GET("/locked", auth.WithJWTAuth(h.locked, configs.Envs.JWTSecret))
+
 	}
 
-}
-func (h *Handler) locked(c *gin.Context) {
-	c.JSON(200, "unlocked")
 }
 
 // @Summary Login user
