@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/delapaska/cadKeeperAuth/configs"
-	"github.com/delapaska/cadKeeperAuth/models"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
 )
@@ -29,7 +28,7 @@ func CreateJWT(secret []byte, userID int) (string, error) {
 	}
 	return tokenString, nil
 }
-func WithJWTAuth(handlerFunc gin.HandlerFunc, store models.UserStore) gin.HandlerFunc {
+func WithJWTAuth(handlerFunc func(*gin.Context), secret string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		tokenString := getTokenFromRequest(c)
 		if tokenString == "" {
@@ -38,7 +37,7 @@ func WithJWTAuth(handlerFunc gin.HandlerFunc, store models.UserStore) gin.Handle
 			return
 		}
 
-		token, err := validateJWT(tokenString)
+		token, err := validateJWT(tokenString, secret)
 		if err != nil {
 			log.Printf("failed to validate token: %v", err)
 			permissionDenied(c)
@@ -72,26 +71,22 @@ func WithJWTAuth(handlerFunc gin.HandlerFunc, store models.UserStore) gin.Handle
 			return
 		}
 
-		u, err := store.GetUserById(userID)
-		if err != nil {
-			log.Printf("failed to get user by id: %v", err)
-			permissionDenied(c)
-			return
-		}
+		// Add the userID to the context
+		c.Set(string(UserKey), userID)
 
-		c.Set(string(UserKey), u.ID)
-
+		// Call the handler function with userID
 		handlerFunc(c)
 	}
 }
 
-func validateJWT(tokenString string) (*jwt.Token, error) {
+func validateJWT(tokenString string, secret string) (*jwt.Token, error) {
 	return jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
 
-		return []byte(configs.Envs.JWTSecret), nil
+		// Use the provided secret key
+		return []byte(secret), nil
 	})
 }
 
@@ -106,13 +101,4 @@ func getTokenFromRequest(c *gin.Context) string {
 		return authHeader[7:]
 	}
 	return ""
-}
-
-func GetUserIDFromContext(c *gin.Context) int {
-	userID, exists := c.Get(string(UserKey))
-	if !exists {
-		return -1
-	}
-
-	return userID.(int)
 }

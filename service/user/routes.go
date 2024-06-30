@@ -26,7 +26,7 @@ func (h *Handler) RegisterRoutes(router *gin.Engine) {
 	{
 		api.POST("/login", h.handleLogin)
 		api.POST("/register", h.handleRegister)
-
+		api.GET("/locked", auth.WithJWTAuth(h.locked, configs.Envs.JWTSecret))
 	}
 
 }
