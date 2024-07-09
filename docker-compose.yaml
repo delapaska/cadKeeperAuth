@@ -1,0 +1,36 @@
+version: '3.8'
+
+networks:
+  my_network:
+    driver: bridge
+
+services:
+  cad-keeper:
+    networks:
+      - my_network
+    build: ./
+    command: ./cad-keeper-auth
+    ports:
+      - "${PORT}:${PORT}"
+    depends_on:
+      - db
+    environment:
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_NAME: ${DB_NAME}
+
+  db:
+    networks:
+      - my_network
+    restart: always
+    image: postgres:latest
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - "5436:5432"

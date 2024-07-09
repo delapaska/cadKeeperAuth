@@ -28,6 +28,7 @@ func CreateJWT(secret []byte, userID int) (string, error) {
 	}
 	return tokenString, nil
 }
+
 func WithJWTAuth(handlerFunc func(*gin.Context), secret string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		tokenString := getTokenFromRequest(c)
@@ -71,10 +72,8 @@ func WithJWTAuth(handlerFunc func(*gin.Context), secret string) gin.HandlerFunc 
 			return
 		}
 
-		// Add the userID to the context
 		c.Set(string(UserKey), userID)
 
-		// Call the handler function with userID
 		handlerFunc(c)
 	}
 }
@@ -85,14 +84,8 @@ func validateJWT(tokenString string, secret string) (*jwt.Token, error) {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
 
-		// Use the provided secret key
 		return []byte(secret), nil
 	})
-}
-
-func permissionDenied(c *gin.Context) {
-	c.JSON(http.StatusForbidden, gin.H{"error": "permission denied"})
-	c.Abort()
 }
 
 func getTokenFromRequest(c *gin.Context) string {
@@ -101,4 +94,9 @@ func getTokenFromRequest(c *gin.Context) string {
 		return authHeader[7:]
 	}
 	return ""
+}
+
+func permissionDenied(c *gin.Context) {
+	c.JSON(http.StatusForbidden, gin.H{"error": "permission denied"})
+	c.Abort()
 }

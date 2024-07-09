@@ -24,12 +24,10 @@ func NewHandler(store models.UserStore) *Handler {
 }
 
 func (h *Handler) RegisterRoutes(router *gin.Engine) {
-
 	api := router.Group("/api/v1")
 	{
 		api.POST("/login", h.handleLogin)
 		api.POST("/register", h.handleRegister)
-
 	}
 
 }

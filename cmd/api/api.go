@@ -12,6 +12,7 @@ import (
 )
 
 type APIServer struct {
+	addr   string
 	engine *gin.Engine
 }
 
@@ -19,19 +20,21 @@ type APIServer struct {
 // @version 1.0
 // @description This is a sample API for CadKeeperAuth which includes registration, authentication, and token validation.
 func NewAPIServer(db *sql.DB) *APIServer {
-	engine := gin.New()
 
+	engine := gin.New()
 	engine.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
 	userStore := user.NewStore(db)
 	userHandler := user.NewHandler(userStore)
 	userHandler.RegisterRoutes(engine)
 
 	return &APIServer{
+		addr:   ":" + configs.Envs.Port,
 		engine: engine,
 	}
 }
 
 func (s *APIServer) Run() {
 
-	s.engine.Run(configs.Envs.Port)
+	s.engine.Run(s.addr)
 }

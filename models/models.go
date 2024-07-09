@@ -22,18 +22,15 @@ type LoginUserPayload struct {
 	Password string `json:"password" validate:"required"`
 }
 
-// SuccessResponse представляет успешный ответ от API.
 type SuccessResponse struct {
 	Status string `json:"status"`
 	Code   int    `json:"code"`
 }
 
-// TokenResponse представляет ответ с токеном.
 type TokenResponse struct {
 	Token string `json:"token"`
 }
 
-// ErrorResponse представляет ошибку в ответе от API.
 type ErrorResponse struct {
 	Error string `json:"error"`
 }
